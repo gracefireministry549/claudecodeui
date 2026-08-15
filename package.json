@@ -1,8 +1,8 @@
 {
   "name": "@cloudcli-ai/cloudcli",
   "version": "1.37.1",
-  "productName": "CloudCLI",
-  "description": "A web-based UI for Claude Code CLI",
+  "productName": "Aureon",
+  "description": "A web-based coding workspace for AI coding agents",
   "type": "module",
   "main": "dist-server/server/index.js",
   "bin": {
@@ -18,13 +18,13 @@
     "scripts/",
     "README.md"
   ],
-  "homepage": "https://cloudcli.ai",
+  "homepage": "https://github.com/gracefireministry549/claudecodeui",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/siteboon/claudecodeui.git"
+    "url": "git+https://github.com/gracefireministry549/claudecodeui.git"
   },
   "bugs": {
-    "url": "https://github.com/siteboon/claudecodeui/issues"
+    "url": "https://github.com/gracefireministry549/claudecodeui/issues"
   },
   "scripts": {
     "dev": "concurrently --kill-others \"npm run server:dev\" \"npm run client\"",
@@ -51,7 +51,7 @@
     "test": "tsx --tsconfig server/tsconfig.json --test \"server/**/*.test.ts\" \"server/**/*.test.js\"",
     "lint": "eslint src/ server/",
     "lint:fix": "eslint src/ server/ --fix",
-    "start": "npm run build && npm run server",
+    "start": "npm run server",
     "release": "./release.sh",
     "prepublishOnly": "npm run build",
     "postinstall": "node scripts/fix-node-pty.js",
@@ -59,10 +59,10 @@
     "update:platform": "./update-platform.sh"
   },
   "build": {
-    "appId": "ai.cloudcli.desktop",
-    "productName": "CloudCLI",
+    "appId": "ai.aureon.desktop",
+    "productName": "Aureon",
     "asar": false,
-    "artifactName": "cloudcli-desktop-${version}-${os}-${arch}.${ext}",
+    "artifactName": "aureon-desktop-${version}-${os}-${arch}.${ext}",
     "directories": {
       "output": "release/desktop"
     },
@@ -81,9 +81,9 @@
     ],
     "protocols": [
       {
-        "name": "CloudCLI",
+        "name": "Aureon",
         "schemes": [
-          "cloudcli"
+          "aureon"
         ]
       }
     ],
@@ -95,13 +95,13 @@
         "dmg"
       ],
       "extendInfo": {
-        "CFBundleName": "CloudCLI",
-        "CFBundleDisplayName": "CloudCLI",
+        "CFBundleName": "Aureon",
+        "CFBundleDisplayName": "Aureon",
         "CFBundleURLTypes": [
           {
-            "CFBundleURLName": "CloudCLI",
+            "CFBundleURLName": "Aureon",
             "CFBundleURLSchemes": [
-              "cloudcli"
+              "aureon"
             ]
           }
         ]
@@ -122,7 +122,7 @@
     "claude code",
     "claude-code",
     "claude-code-ui",
-    "cloudcli",
+    "aureon",
     "codex",
     "cursor",
     "cursor-cli",
@@ -134,7 +134,7 @@
     "ui",
     "mobile IDE"
   ],
-  "author": "CloudCLI UI Contributors",
+  "author": "Aureon Contributors",
   "license": "AGPL-3.0-or-later",
   "dependencies": {
     "@anthropic-ai/claude-agent-sdk": "^0.3.165",
@@ -173,7 +173,7 @@
     "i18next": "^25.7.4",
     "i18next-browser-languagedetector": "^8.2.0",
     "ignore": "^7.0.6",
-    "jsonwebtoken": "^9.0.2",
+    "jsonwebtoken": "^9.0.0",
     "jszip": "^3.10.1",
     "katex": "^0.16.25",
     "lucide-react": "^0.515.0",
@@ -194,7 +194,7 @@
     "remark-breaks": "^4.0.0",
     "remark-gfm": "^4.0.0",
     "remark-math": "^6.0.0",
-    "tailwind-merge": "^3.3.1",
+    "tailwind-merge": "^3.3.0",
     "web-push": "^3.6.7",
     "ws": "^8.14.2"
   },
@@ -206,7 +206,7 @@
     "@types/better-sqlite3": "^7.6.13",
     "@types/cors": "^2.8.19",
     "@types/cross-spawn": "^6.0.6",
-    "@types/express": "^5.0.6",
+    "@types/express": "^5.0.0",
     "@types/mime-types": "^3.0.1",
     "@types/multer": "^2.2.0",
     "@types/node": "^22.19.7",
@@ -231,7 +231,7 @@
     "eslint-plugin-unused-imports": "^4.4.1",
     "globals": "^17.4.0",
     "husky": "^9.1.7",
-    "lint-staged": "^16.3.2",
+    "lint-staged": "^16.3.0",
     "node-gyp": "^10.0.0",
     "postcss": "^8.4.32",
     "release-it": "^19.0.5",
