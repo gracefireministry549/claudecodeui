@@ -2,8 +2,6 @@ import { readFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 
-import spawn from 'cross-spawn';
-
 import type { IProviderAuth } from '@/shared/interfaces.js';
 import type { ProviderAuthStatus } from '@/shared/types.js';
 import { readObjectRecord, readOptionalString } from '@/shared/utils.js';
@@ -17,20 +15,13 @@ type CodexCredentialsStatus = {
 
 export class CodexProviderAuth implements IProviderAuth {
   /**
-   * Checks whether Codex is available to the server runtime.
+   * Aureon executes Codex through @openai/codex-sdk, so a Codex CLI binary is
+   * not required on Render. The SDK is part of the application dependency set.
    */
   private checkInstalled(): boolean {
-    try {
-      spawn.sync('codex', ['--version'], { stdio: 'ignore', timeout: 5000 });
-      return true;
-    } catch {
-      return false;
-    }
+    return true;
   }
 
-  /**
-   * Returns Codex CLI availability and credential status.
-   */
   async getStatus(): Promise<ProviderAuthStatus> {
     const installed = this.checkInstalled();
     const credentials = await this.checkCredentials();
@@ -45,20 +36,24 @@ export class CodexProviderAuth implements IProviderAuth {
     };
   }
 
-  /**
-   * Resolve the Codex home directory. CODEX_HOME is supported so a remote
-   * Aureon server can use a persistent workspace/credential directory rather
-   * than assuming the process user's home directory.
-   */
   private getCodexHome(): string {
     const configuredHome = process.env.CODEX_HOME?.trim();
     return configuredHome ? path.resolve(configuredHome) : path.join(os.homedir(), '.codex');
   }
 
   /**
-   * Reads Codex auth.json and checks OAuth tokens or an API key fallback.
+   * Authentication sources, in priority order:
+   * 1. Render/server OPENAI_API_KEY environment secret.
+   * 2. A Codex auth.json created by a local/desktop Codex login.
+   *
+   * Secrets are never returned to the client.
    */
   private async checkCredentials(): Promise<CodexCredentialsStatus> {
+    const apiKey = process.env.OPENAI_API_KEY?.trim();
+    if (apiKey) {
+      return { authenticated: true, email: 'API Key Auth', method: 'api_key' };
+    }
+
     try {
       const authPath = path.join(this.getCodexHome(), 'auth.json');
       const content = await readFile(authPath, 'utf8');
@@ -79,21 +74,20 @@ export class CodexProviderAuth implements IProviderAuth {
         return { authenticated: true, email: 'API Key Auth', method: 'api_key' };
       }
 
-      return { authenticated: false, email: null, method: null, error: 'No valid tokens found' };
+      return { authenticated: false, email: null, method: null, error: 'No valid Codex credentials found' };
     } catch (error) {
       const code = (error as NodeJS.ErrnoException).code;
       return {
         authenticated: false,
         email: null,
         method: null,
-        error: code === 'ENOENT' ? 'Codex not configured' : error instanceof Error ? error.message : 'Failed to read Codex auth',
+        error: code === 'ENOENT'
+          ? 'Codex not configured. Add OPENAI_API_KEY to the server environment or authenticate Codex on the desktop.'
+          : error instanceof Error ? error.message : 'Failed to read Codex auth',
       };
     }
   }
 
-  /**
-   * Extracts the user email from a Codex id_token when a readable JWT payload exists.
-   */
   private readEmailFromIdToken(idToken: string): string {
     try {
       const parts = idToken.split('.');
