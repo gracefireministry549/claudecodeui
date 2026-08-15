@@ -14,6 +14,7 @@ import {
 import { providerModelsService } from '@/modules/providers/index.js';
 
 import { createAgentRouter } from './agent.routes.js';
+import { aureonOrchestratorRouter } from '../agents/aureon-orchestrator.routes.js';
 
 type AgentExternalDependencies = Pick<
   Parameters<typeof createAgentRouter>[0],
@@ -22,10 +23,11 @@ type AgentExternalDependencies = Pick<
 
 /**
  * Assembles the production Agent router while accepting provider runners from
- * the centralized provider runtime service.
+ * the centralized provider runtime service. Aureon's unified multi-agent
+ * orchestration is mounted under /orchestrator on the same protected API.
  */
 export function createAgentModule(externalDependencies: AgentExternalDependencies) {
-  return createAgentRouter({
+  const router = createAgentRouter({
     fileSystem: fs,
     crypto,
     homeDirectory: os.homedir,
@@ -48,4 +50,7 @@ export function createAgentModule(externalDependencies: AgentExternalDependencie
     GithubClient: Octokit,
     ...externalDependencies,
   });
+
+  router.use('/orchestrator', aureonOrchestratorRouter);
+  return router;
 }
