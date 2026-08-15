@@ -29,7 +29,7 @@ export class CodexProviderAuth implements IProviderAuth {
   }
 
   /**
-   * Returns Codex SDK availability and credential status.
+   * Returns Codex CLI availability and credential status.
    */
   async getStatus(): Promise<ProviderAuthStatus> {
     const installed = this.checkInstalled();
@@ -46,11 +46,21 @@ export class CodexProviderAuth implements IProviderAuth {
   }
 
   /**
+   * Resolve the Codex home directory. CODEX_HOME is supported so a remote
+   * Aureon server can use a persistent workspace/credential directory rather
+   * than assuming the process user's home directory.
+   */
+  private getCodexHome(): string {
+    const configuredHome = process.env.CODEX_HOME?.trim();
+    return configuredHome ? path.resolve(configuredHome) : path.join(os.homedir(), '.codex');
+  }
+
+  /**
    * Reads Codex auth.json and checks OAuth tokens or an API key fallback.
    */
   private async checkCredentials(): Promise<CodexCredentialsStatus> {
     try {
-      const authPath = path.join(os.homedir(), '.codex', 'auth.json');
+      const authPath = path.join(this.getCodexHome(), 'auth.json');
       const content = await readFile(authPath, 'utf8');
       const auth = readObjectRecord(JSON.parse(content)) ?? {};
       const tokens = readObjectRecord(auth.tokens) ?? {};
